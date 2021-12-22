@@ -24,7 +24,16 @@
 
 ![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/2.gif)
 
+## 原理分析
 
+- 相机标定
+
+首先，需要对相机参数进行标定。
+
+
+- 光源估计
+
+- 3D重建
 
 VERSION_1.0 
 
