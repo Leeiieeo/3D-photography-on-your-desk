@@ -113,6 +113,7 @@ def find_intersection_point_lp(p1,p2,a,b,c,d): #查找经过p1,p2的直线与参
     plane_normal = np.array([a, b, c])
     n = - (np.vdot(p1,plane_normal) + d) / np.vdot((p2-p1),plane_normal)
     return p1 + n*(p2-p1)
+    
 def find_intersection_ll(a,b,c,d): #查找a,b组成的直线和c,d组成的直线的交点的最小二乘解
     #全是数学推导
     n = np.cross((b-a),(d-c))
@@ -138,8 +139,16 @@ tip = np.array([[656,32],[267,671],[1142,381],[1522,624],[1538,41],
 base = np.array([[604,471],[326,936],[960,720],[1234,894],[1247,480],
                  [1424,535],[882,482],[1418,1025],[1107,907],[472,767],[247,474],[190,868]],dtype=np.float64)
 ```
-- desk_scan.py 物体3D扫描
+- desk_scan.py 
 
+该部分进行物体3D扫描。代码实现的关键在于，维护两个数组，第一个记录阴影的空间信息，即每一帧时，阴影在上与下参考直线的位置，大小为(帧数,2)；第二个记录阴影到达时间的信息，即阴影到达每一个像素时的当前帧数，大小为(图像高，图像宽)。
+
+```python
+# 记录每一帧时，阴影在上与下参考直线的位置，大小为(帧数,2)
+spatial_shadow = np.zeros((total_frame,2),dtype=np.float64) 
+# 记录阴影到达每一个像素时的当前帧数，大小为(图像高，图像宽)
+temporal_shadow = np.zeros((frame_height, frame_width), dtype=np.float64)
+```
 
 calib文件夹下为相机标定素材，light文件夹下为估计光源位置素材，bowl文件夹下为3D重建的素材（一个碗）
 
