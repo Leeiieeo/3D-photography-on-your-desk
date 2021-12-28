@@ -54,6 +54,92 @@
 
 ![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/desk_scan.PNG)
 
+## 代码实现
+
+整体来说，代码是基于numpy和opencv实现的。
+
+- calib.py 
+
+调用的opencv-python中的
+```python
+ret, mtx, dist, rvecs, tvecs = \
+    cv2.calibrateCamera(objpoints, imgpoints, gray.shape[::-1], None, None)
+```
+进行相机标定。值得一提的是，我们在后面所有的计算中都忽略了镜头畸变，原因是手机相机本身畸变就不明显，而且由于棋盘格的纸摆放不是完全平整的，所以会使得结果中畸变系数被放大，实际上是几乎没有畸变的，如果您的镜头畸变较大，可以取消源代码中下面这行的注释，进行畸变校正:
+
+```python
+mtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (u, v), 0, (u, v))
+```
+- light.py 
+
+该部分进行光源估计。首先，我们需要定义相机类进行各个坐标系的转换
+```python
+class Camera():
+    def __init__(self,intrinsics,extrinsics_R,extrinsics_T,distort):
+        self.intrinsics = intrinsics
+        self.extrinsics_R = extrinsics_R
+        self.extrinsics_T = extrinsics_T
+        self.distort = distort
+        self.camera_center = np.dot(np.linalg.inv(camera_extrinsics_R),-camera_extrinsics_T)
+
+    def camera2world(self,camera):
+        return np.dot(np.linalg.inv(self.extrinsics_R), (camera - self.extrinsics_T))
+    
+    def pixel2camera(self,pixel):
+        p = np.array([pixel[0],pixel[1],1]).reshape(3,1)
+        return np.dot(np.linalg.inv(self.intrinsics),p)
+    
+    def pixel2world(self,pixel): #pixel[0]像素x坐标，pixel[1]像素y坐标
+        camera = self.pixel2camera(pixel)
+        return self.camera2world(camera)
+    
+    def world2camera(self,world):
+        w = np.array([world[0],world[1],world[2]]).reshape(3,1)
+        camera = np.dot(self.extrinsics_R,w) + self.extrinsics_T
+        return camera
+    
+    def camera2pixel(self,camera):
+        p = np.dot(self.intrinsics,camera) / camera[2]
+        return p[:2]
+    
+    def world2pixel(self,world):
+        camera = self.world2camera(world)
+        return self.camera2pixel(camera)
+```
+接下来，我们需要定义一些与立体几何有关的函数，用于计算直线与直线，直线与平面的交点
+```python
+def find_intersection_point_lp(p1,p2,a,b,c,d): #查找经过p1,p2的直线与参数为a,b,c,d的平面的交点
+    #全是数学推导
+    plane_normal = np.array([a, b, c])
+    n = - (np.vdot(p1,plane_normal) + d) / np.vdot((p2-p1),plane_normal)
+    return p1 + n*(p2-p1)
+def find_intersection_ll(a,b,c,d): #查找a,b组成的直线和c,d组成的直线的交点的最小二乘解
+    #全是数学推导
+    n = np.cross((b-a),(d-c))
+    m1 = (d[1]-c[1])/(b[1]-a[1]) - (d[0] - c[0])/(b[0] - a[0])
+    m2 = n[1]/(b[1]-a[1]) - n[0] / (b[0]-a[0])
+    p1 = (d[2] - c[2]) / (b[2] - a[2]) - (d[0] - c[0]) / (b[0] - a[0])
+    p2 = n[2] / (b[2] - a[2]) - n[0] / (b[0] - a[0])
+    d1 = (c[0] - a[0])/(b[0] - a[0]) - (c[1] - a[1])/(b[1] - a[1])
+    d2 = (c[0] - a[0])/(b[0] - a[0]) - (c[2] - a[2])/(b[2] - a[2])
+    k1 = (d1*p2 - d2*m2) / (m1 * p2 - p1*m2)
+    k2 = (m1*d2 - d1*p1) / (m1*p2 - m2*p1)
+    return c + k1 * (d - c) + 0.5*k2*n
+```
+在光源估计的过程中，我们需要找到每幅图像中笔尖的影子、笔的底座的像素位置，实际上这对于图像处理来说这不是一个简单的任务（至少对我们来说不简单），在上面给出的例子中对应是下图中两个红色的点，
+
+![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/tip_base.PNG)
+
+我们采用的是人工标注的方法，在代码中加入这些图像对应两个点的位置，所以说如果您想对新拍的照片进行复现的话，需要修改代码中下面这两个数组
+```python
+# 人工标注的数据
+tip = np.array([[656,32],[267,671],[1142,381],[1522,624],[1538,41],
+                [1779,130],[1026,45],[1761,807],[1337,650],[465,440],[154,31],[79,589]],dtype=np.float64)
+base = np.array([[604,471],[326,936],[960,720],[1234,894],[1247,480],
+                 [1424,535],[882,482],[1418,1025],[1107,907],[472,767],[247,474],[190,868]],dtype=np.float64)
+```
+- desk_scan.py 物体3D扫描
+
 
 calib文件夹下为相机标定素材，light文件夹下为估计光源位置素材，bowl文件夹下为3D重建的素材（一个碗）
 
