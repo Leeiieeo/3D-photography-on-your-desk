@@ -243,7 +243,7 @@ open3d.visualization.draw_geometries([point_cloud])
 
 ## 运行说明
 
-calib文件夹下为相机标定素材，light文件夹下为估计光源位置素材，bowl文件夹下为3D重建的素材
+- 复现我们的结果
 
 先创建一个新的conda环境，python版本为3.8，
 
@@ -257,10 +257,73 @@ calib文件夹下为相机标定素材，light文件夹下为估计光源位置�
 
     python visualize.py 
 
-若希望从头开始计算物体点云，可在工程目录下，按照默认参数依次运行以下命令
+若希望从头开始计算物体点云，可在工程目录下，按照默认参数依次运行以下命令即可
 
     python ./src/calib.py
     python ./src/light.py
     python ./src/desk_scan.py
     
+我们提供的素材都是1920*1080，
+
+运行可能会耗费一一些时间，在我的笔记本上大约10min。
+    
+- 实现你自己的3D重建
+
+创建环境与安装依赖的过程与上相同。
+
+首先，将用相机拍摄的棋盘格。由于后续需要固定相机的外参，所以在移动相机拍摄棋盘格的过程中，请将后续使用的那个相机位姿所拍摄的棋盘格图片命名为最小，例如，calib_1.jpg，拍摄的所有图片置于./calib/目录下。注意，这一步对光源没有要求，尽量照亮桌面即可。
+
+标定好之后，相机位置在接下来不能发生改变。
+
+接下来，在桌面上的不同位置竖直放置笔，拍摄图片，并且测量笔的长度（单位：mm）。将拍摄的图片置于./light/目录下，同时，人工标注笔尖阴影与笔底座在各个图像中的像素位置，修改light.py中的对应内容。
+
+最后，拍摄阴影扫过物体的图片序列，将它们存放在./bowl/目录下（你也可以起你喜欢的名字，但需要修改文件的默认参数）。
+
+运行
+
+    python ./src/calib.py --pattern_width pattern_width --pattern_height pattern_height --pattern_size pattern_size
+    python ./src/light.py --pencil_height pencil_height
+    python ./src/desk_scan.py --row_top row_top --row_bottom row_bottom
+其中，pattern_width与pattern_height对应棋盘格中内角点的数目，如果您不理解这两个参数的意思，可以查看我们上面拍摄的棋盘格图像，那张图像中，pattern_width=9，pattern_height=6。pattern_size是每个正方形格子对应的真实边长（单位：mm），pencil_height为笔的高度（单位：mm）。row_top和row_bottom为上下参考线的y坐标。
+
+
+就可以得到重建结果了。
+
+## 参数说明
+
+- calib.py
+
+```text
+  --calib   相机标定图像所在文件夹，默认为 ./calib
+  --pattern_width   棋盘格中内角点在x方向上的个数，默认为 9
+  --pattern_height    棋盘格中内角点在x方向上的个数，默认为 6
+  --pattern_size    棋盘格正方形边长（单位：mm），默认为28
+  --saving    标定结果的保存目录，默认为 ./run/calib
+```
+
+- light.py
+
+```text
+  --light   光源估计素材图像所在文件夹，默认为 ./light
+  --camera_params  相机参数所在位置，默认为./run/calib/camera_params.txt
+  --pencil_height    笔的高度（单位：mm），默认为132.8
+  --saving    光源估计结果的保存目录，默认为 ./run/light
+```
+
+- desk_scan.py
+
+```text
+  --image   物体扫描素材所在文件夹，默认为 ./bowl
+  --camera_params  相机参数所在位置，默认为 ./run/calib/camera_params.txt
+  --light_source 光源估计结果，默认为 ./run/light/light_source.npy
+  --row_top 上参考线对应像素y坐标，默认为 200
+  --row_bottom 下参考线对应像素y坐标，默认为 1000
+  --threshold    前面提到的阈值，默认为 50
+  --postprocess    是否进行后处理，默认为 True
+  --saving    物体点云保存目录，默认为 ./run/desk_scan
+```
+
+
+
+
     
