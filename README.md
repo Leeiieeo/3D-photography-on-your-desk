@@ -255,7 +255,7 @@ open3d.visualization.draw_geometries([point_cloud])
     
 完成后，若希望直接查看效果，运行
 
-    python visualize.py 
+    python ./src/visualize.py 
 
 若希望从头开始计算物体点云，可在工程目录下，按照默认参数依次运行以下命令即可
 
@@ -263,6 +263,8 @@ open3d.visualization.draw_geometries([point_cloud])
     python ./src/light.py
     python ./src/desk_scan.py
     
+上述两种，我们都提供了windows下的脚本，分别对应visualize_windows.bat和run_windows.bat，直接运行即可。
+
 我们提供的素材都是1920*1080，
 
 运行可能会耗费一一些时间，在我的笔记本上大约10min。
@@ -284,6 +286,7 @@ open3d.visualization.draw_geometries([point_cloud])
     python ./src/calib.py --pattern_width pattern_width --pattern_height pattern_height --pattern_size pattern_size
     python ./src/light.py --pencil_height pencil_height
     python ./src/desk_scan.py --row_top row_top --row_bottom row_bottom
+    
 其中，pattern_width与pattern_height对应棋盘格中内角点的数目，如果您不理解这两个参数的意思，可以查看我们上面拍摄的棋盘格图像，那张图像中，pattern_width=9，pattern_height=6。pattern_size是每个正方形格子对应的真实边长（单位：mm），pencil_height为笔的高度（单位：mm）。row_top和row_bottom为上下参考线的y坐标。
 
 几分钟后，您就可以得到重建结果了。
