@@ -286,8 +286,7 @@ open3d.visualization.draw_geometries([point_cloud])
     python ./src/desk_scan.py --row_top row_top --row_bottom row_bottom
 其中，pattern_width与pattern_height对应棋盘格中内角点的数目，如果您不理解这两个参数的意思，可以查看我们上面拍摄的棋盘格图像，那张图像中，pattern_width=9，pattern_height=6。pattern_size是每个正方形格子对应的真实边长（单位：mm），pencil_height为笔的高度（单位：mm）。row_top和row_bottom为上下参考线的y坐标。
 
-
-就可以得到重建结果了。
+几分钟后，您就可以得到重建结果了。
 
 ## 参数说明
 
@@ -322,7 +321,10 @@ open3d.visualization.draw_geometries([point_cloud])
   --postprocess    是否进行后处理，默认为 True
   --saving    物体点云保存目录，默认为 ./run/desk_scan
 ```
-
+- visualize.py
+```text
+  --point 点云数据文件，默认为 ./run/desk_scan/point.csv
+```
 
 
 
