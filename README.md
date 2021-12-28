@@ -18,11 +18,11 @@
 首先，我们需要准备的硬件有，一张棋盘格、一台PC、一只笔、一根笔直的不透光的棍子、一个平整桌面（最好是纯白色的，可以垫一张白纸实现）、一个可以摄像的设备（我使用的是手机）以及一个光源（最好接近点光源，可以使用台灯，我是做法是向室友又借了一部手机，用手机背后的手电筒作为光源）以及待重建的物体。下面是论文作者给出的硬件设备实例：
 
 
-![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/1.PNG)
+![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/hardware.png)
 
 最终可以实现的效果是，我们仅需通过让棍子的阴影扫过物体的方式，就可以实现对物体的3D重建
 
-![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/2.gif)
+![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/scan.gif)
 
 ## 原理分析
 
