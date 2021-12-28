@@ -185,24 +185,82 @@ temporal_shadow = np.zeros((frame_height, frame_width), dtype=np.float64)
 
 在整个过程中，如果一个像素点最大灰度与最小灰度小于某个阈值，意味着这个像素本来就位于物体的阴影之中，在这个方法下无法提供深度信息，所以会被抛弃。
 
+我们还对生成的点云数据进行了后处理，删去了其中偏差较大的点。
 
-calib文件夹下为相机标定素材，light文件夹下为估计光源位置素材，bowl文件夹下为3D重建的素材（一个碗）
+最后，我们借助open3d对点云进行可视化
 
-先创建一个新的conda环境，python=3.8，再运行
+```python
+point_cloud = open3d.geometry.PointCloud()
+point_cloud.points = open3d.utility.Vector3dVector(point)
+open3d.visualization.draw_geometries([point_cloud])
+```
+
+更多细节请查看源代码。
+
+## 效果展示
+
+首先，使用阴影对物体进行扫描
+
+![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/scan.gif)
+
+借助open3d，展示生成的结果
+
+![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/bowl.gif)
+
+## 工程结构
+
+```text
+.
+├── src
+│   ├── calib.py
+│   ├── light.py
+│   ├── desk_scan.py
+│   ├── screen_shot.py
+│   ├── visualize.py
+├── img //一些显示在报告中的图片
+│   ├── ...
+├── calib //放置标定用的素材
+│   ├── calib_1.jpg
+│   ├── calib_2.jpg
+│   ├── ...
+├── light //放置光源估计用的素材
+│   ├── light_1.jpg
+│   ├── light_2.jpg
+│   ├── ...
+├── bowl //放置碗的素材
+│   ├── bowl_00.jpg
+│   ├── bowl_01.jpg
+│   ├── ...
+├── run //放置运行中产生的数据，默认是作者运行的结果
+│   ├── calib
+│       ├── camera_params.txt
+│   ├── light
+│       ├── light_source.npy
+│   ├── desk_scan
+│       ├── point.csv
+└── requirements.txt
+```
+
+## 运行说明
+
+calib文件夹下为相机标定素材，light文件夹下为估计光源位置素材，bowl文件夹下为3D重建的素材
+
+先创建一个新的conda环境，python版本为3.8，
+
+    conda create -n env_name python=3.8
+    
+接着运行如下指令，安装所需要的package，
 
     pip install -r requirements.txt
     
-安装所需要的包
-
 完成后，若希望直接查看效果，运行
 
     python visualize.py 
 
-若希望从头开始计算物体点云，可按照默认参数运行以下命令，详细参数请查看源代码
+若希望从头开始计算物体点云，可在工程目录下，按照默认参数依次运行以下命令
 
-    python calib.py
-    python light.py
-    python desk_scan.py
+    python ./src/calib.py
+    python ./src/light.py
+    python ./src/desk_scan.py
     
     
-在我的笔记本上大致需要10min
