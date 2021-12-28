@@ -141,7 +141,27 @@ base = np.array([[604,471],[326,936],[960,720],[1234,894],[1247,480],
 ```
 - desk_scan.py 
 
-该部分进行物体3D扫描。代码实现的关键在于，维护两个数组，第一个记录阴影的空间信息，即每一帧时，阴影在上与下参考直线的位置，大小为(帧数,2)；第二个记录阴影到达时间的信息，即阴影到达每一个像素时的当前帧数，大小为(图像高，图像宽)。
+该部分进行物体3D扫描。需要先定义读取图片序列的类
+```python
+class Imageset():
+    def __init__(self,path):
+        self.image = []
+        for root, dirs, files in os.walk(path):
+            for file in files:
+                img = cv2.imread(root +"/"+ file)
+                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY).astype(np.float64)
+                self.image.append(gray)
+
+        self.image = np.array(self.image)
+        self.frame_lenth = self.image.shape[0]
+        self.frame_height = self.image.shape[1]
+        self.frame_width = self.image.shape[2]
+
+    def __getitem__(self, item):
+        return self.image[item]
+```
+
+代码实现的关键在于，维护两个数组，第一个记录阴影的空间信息，即每一帧时，阴影在上与下参考直线的位置，大小为(帧数,2)；第二个记录阴影到达时间的信息，即阴影到达每一个像素时的当前帧数，大小为(图像高，图像宽)。
 
 ```python
 # 记录每一帧时，阴影在上与下参考直线的位置，大小为(帧数,2)
@@ -149,6 +169,22 @@ spatial_shadow = np.zeros((total_frame,2),dtype=np.float64)
 # 记录阴影到达每一个像素时的当前帧数，大小为(图像高，图像宽)
 temporal_shadow = np.zeros((frame_height, frame_width), dtype=np.float64)
 ```
+对于spatial_shadow，我们计算每帧图像上，参考线上的灰度曲线，得到其最大值与最小值的中间点，计算灰度曲线与该点的交点作为此帧下的阴影位置。
+
+对于temporal_shadow，对于一个固定的像素点，我们计算该像素点在整个视频中的灰度变化曲线，同样取其与最大最小值中点的交点作为阴影到达该像素的时间。
+
+下图给出了解释：
+
+![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/cross.PNG)
+
+如果在spatial_shadow计算中选择了左交点，temporal_shadow就必须选择右交点（您可以想想这是为什么）
+
+我们在上述两个数组的计算中采样了亚像素精度(subpixel accuracy)，使用线性内插得到最终结果。
+
+有了这两个数据后，就可以对每一个像素，得到阴影到达该像素的时间，同时得到此时阴影的位置，就可以按照上述原理计算这个3D点的世界坐标了。
+
+在整个过程中，如果一个像素点最大灰度与最小灰度小于某个阈值，意味着这个像素本来就位于物体的阴影之中，在这个方法下无法提供深度信息，所以会被抛弃。
+
 
 calib文件夹下为相机标定素材，light文件夹下为估计光源位置素材，bowl文件夹下为3D重建的素材（一个碗）
 
