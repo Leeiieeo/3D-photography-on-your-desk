@@ -263,7 +263,6 @@ open3d.visualization.draw_geometries([point_cloud])
     python ./src/light.py
     python ./src/desk_scan.py
     
-上述两种，我们都提供了windows下的脚本，分别对应visualize_windows.bat和run_windows.bat，直接运行即可。
 
 我们提供的素材都是1920*1080，
 
