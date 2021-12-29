@@ -299,7 +299,7 @@ open3d.visualization.draw_geometries([point_cloud])
     
 完成后，若希望直接查看效果可以在下面的链接下载我们计算得到的点云数据point.csv，并置于./run/desk_scan/目录下
 
-![point.csv](http://home.ustc.edu.cn/~llinxiao/point.csv)
+[point.csv](http://home.ustc.edu.cn/~llinxiao/point.csv)
 
 接着运行可视化程序即可
 
