@@ -177,6 +177,49 @@ temporal_shadow = np.zeros((frame_height, frame_width), dtype=np.float64)
 
 ![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/cross.PNG)
 
+对于spatial_shadow，在每帧时遍历上下参考线上的像素即可。
+
+对于temporal_shadow，我们采用的动态维护图像的最大值、最小值、它们的差以及它们的中点，以巧妙的方法只需遍历一次数据就可以得到结果。
+
+```python
+I_max = np.zeros((frame_height,frame_width))        # 遍历图片序列时，记录每个像素的最大值
+I_min = np.full((frame_height, frame_width), 255)   # 遍历图片序列时，记录每个像素的最小值
+I_contrast = np.zeros((frame_height,frame_width))   # 记录当前最大最小值的差
+I_shadow = np.zeros((frame_height,frame_width),dtype=np.float64) # 记录当前最大最小值的中点
+
+for frame_index in tqdm(range(total_frame)):
+    pre_gray = gray
+
+    gray = imageset[frame_index]
+
+    t_t = (np.max(gray[row_top,:]) + np.min(gray[row_top,:])) / 2
+    t_d = (np.max(gray[row_down,:]) + np.min(gray[row_down,:])) / 2
+    # 计算spatial_shadow
+    # 目标：找到row_top,row_down的第一个zero-crossing,对应阴影左侧的边界
+    for i in range(frame_width):
+        if gray[row_top,i] >= t_t and gray[row_top,i+1] < t_t:
+            spatial_shadow[frame_index,0] = i + (gray[row_top,i] - t_t) / (gray[row_top,i] - gray[row_top,i+1])
+            break
+    for i in range(frame_width):
+        if gray[row_down,i] >= t_d and gray[row_down,i+1] < t_d:
+            spatial_shadow[frame_index,1] = i + (gray[row_down,i] - t_t) / (gray[row_down,i] - gray[row_down,i+1])
+            break
+
+    I_max = (np.max(np.concatenate((I_max[np.newaxis, :], gray[np.newaxis, :]), 0), 0))
+    I_min = (np.min(np.concatenate((I_min[np.newaxis, :], gray[np.newaxis, :]), 0), 0))
+    I_contrast = I_max - I_min
+    I_shadow = (I_max + I_min) / 2
+
+    # 计算temporal_shadow
+    # 循环效率低下，待优化
+    for row in range(frame_height):
+        for col in range(frame_width):
+            if I_contrast[row,col] >= threshold and \
+                pre_gray[row,col] <= I_shadow[row,col] and gray[row,col] > I_shadow[row,col]:
+                temporal_shadow[row,col] = frame_index - (gray[row,col] - I_shadow[row,col]) / \
+                                           (gray[row,col] - pre_gray[row,col])
+```
+
 如果在spatial_shadow计算中选择了左交点，temporal_shadow就必须选择右交点（您可以想想这是为什么）
 
 我们在上述两个数组的计算中采样了亚像素精度(subpixel accuracy)，使用线性内插得到最终结果。
