@@ -13,6 +13,8 @@
 
 本项目以上述文章为基础，搭建了一个桌面3D重建系统，实现了一种基于weak structured lighting的、简单又经济的物体3D信息提取装置。
 
+![3D photography on your desk](https://xueshu.baidu.com/usercenter/paper/show?paperid=d304279c61f70bd0830b8771c2ea53ff&site=xueshu_se&hitarticle=1)
+
 - 创意描述 
 
 首先，我们需要准备的硬件有，一张棋盘格、一台PC、一只笔、一根笔直的不透光的杆子、一个平整桌面（最好是纯白色的，可以垫一张白纸实现）、一个可以摄像的设备（我使用的是手机）以及一个光源（最好接近点光源，可以使用台灯，我是做法是向室友又借了一部手机，用手机背后的手电筒作为光源）以及待重建的物体。下面是论文作者给出的硬件设备实例：
