@@ -11,11 +11,11 @@
 
 首先，我们需要准备的硬件有，一张棋盘格、一台PC、一只笔、一根笔直的不透光的杆子、一个平整桌面（最好是纯白色的，可以垫一张白纸实现）、一个可以摄像的设备（我使用的是手机）以及一个光源（最好接近点光源，可以使用台灯，我是做法是向室友又借了一部手机，用手机背后的手电筒作为光源）以及待重建的物体。下面是论文作者给出的硬件设备实例：
 
-![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/hardware.png)
+![image](https://github.com/Leeiieeo/3D-photography-on-your-desk/blob/main/img/hardware.png)
 
 最终可以实现的效果是，我们仅需通过让棍子的阴影扫过物体的方式，就可以实现对物体的3D重建
 
-![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/scan.gif)
+![image](https://github.com/Leeiieeo/3D-photography-on-your-desk/blob/main/img/scan.gif)
 
 ## 原理分析
 
@@ -25,7 +25,7 @@
 
 首先，需要对相机参数进行标定。我们采用的是和opencv-python官方demo中一样的标定流程，首先需要用相机从不同的角度拍摄棋盘格，并将图片保存在./calib/目录下。如下图例子所示：
 
-![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/calib.jpg)
+![image](https://github.com/Leeiieeo/3D-photography-on-your-desk/blob/main/img/calib.jpg)
 
 程序会计算出相机的内参、畸变系数以及各个外参。（标定过程中，世界坐标z=0平面实际上是桌面，这意味着我们得到了桌面的平面方程）
 
@@ -33,11 +33,11 @@
 
 接下来需要估计光源所在位置。我们需要将笔立在桌面上，利用笔尖的影子以及笔的底座的位置计算出光源的位置，下面给出一个摆放的例子：
 
-![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/light_demo.jpg)
+![image](https://github.com/Leeiieeo/3D-photography-on-your-desk/blob/main/img/light_demo.jpg)
 
 利用光心与笔尖的影子的连线与桌面的交点、光心与笔底座与桌面的交点，我们可以计算出笔的底座与笔尖的影子在世界坐标系下的位置。同时我们可以测量出笔的高度，就得到了笔尖在世界坐标系下的位置，于是光心就在笔尖与笔尖的影子二者的连线上。重复上述过程，找到多条这样的直线，它们的交点就是光源的位置，原理示意图如下：
 
-![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/light.PNG)
+![image](https://github.com/Leeiieeo/3D-photography-on-your-desk/blob/main/img/light.PNG)
 
 实际操作中，由于误差的存在，使用求最小二乘解。
 
@@ -45,17 +45,17 @@
 
 在完成光源位置估计后就可以进行物体的3D重建了。首先，我们需要确定杆的阴影在桌面上的位置（实际上只要确定阴影上两个点的位置），这可以用和上面估计光源位置时确定笔的阴影和笔的底座的位置同样的方法。确定了阴影直线和光源的位置后，就得到了一个平面，我们称之为阴影平面。而物体真实的世界坐标就是光心与像素组成的直线与阴影平面的交点，原理如下所示：
 
-![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/desk_scan.PNG)
+![image](https://github.com/Leeiieeo/3D-photography-on-your-desk/blob/main/img/desk_scan.PNG)
 
 ## 效果展示
 
 首先，使用阴影对物体进行扫描
 
-![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/scan.gif)
+![image](https://github.com/Leeiieeo/3D-photography-on-your-desk/blob/main/img/scan.gif)
 
 借助open3d，展示生成的结果
 
-![image](https://github.com/USTC-Computer-Vision-2021/project-cv_lx-nyx/blob/main/img/bowl.gif)
+![image](https://github.com/Leeiieeo/3D-photography-on-your-desk/blob/main/img/bowl.gif)
 
 ## 工程结构
 
