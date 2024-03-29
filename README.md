@@ -1,4 +1,5 @@
-# 3D photography on your desk
+# All On Your Desk: a simple and extremely cost-effective 3D reconstruction method
+<img src="https://github.com/Leeiieeo/3D-photography-on-your-desk/blob/main/img/scan.gif" width="500" height="400"><img src="https://github.com/Leeiieeo/3D-photography-on-your-desk/blob/main/img/bowl.gif" width="500" height="400">
 
 ## 问题描述
 
