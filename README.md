@@ -15,8 +15,6 @@
 
 最终可以实现的效果是，我们仅需通过让棍子的阴影扫过物体的方式，就可以实现对物体的3D重建
 
-![image](https://github.com/Leeiieeo/3D-photography-on-your-desk/blob/main/img/scan.gif)
-
 ## 原理分析
 
 整个过程大致可以分为三步：相机标定、光源估计以及物体3D扫描。
